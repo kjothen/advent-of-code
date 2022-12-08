@@ -1,0 +1,16 @@
+**/classes
+**/target
+**/.artifacts
+**/.cpcache
+**/.DS_Store
+**/.gradle
+**/generated
+
+# Clojure tools
+.clj-kondo
+.eastwood
+.lsp
+.nrepl-port
+.portal
+.rebel_readline_history
+
