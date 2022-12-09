@@ -2,11 +2,10 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [com.rpl.specter :refer [ALL LAST transform]]))
-(defn parse-uint [s] (Integer/parseUnsignedInt s))
 (defn parse-motions
   [motions]
   (transform [ALL LAST]
-             parse-uint
+             parse-long
              (mapv (fn [motion] (string/split motion #"\s"))
                    (string/split-lines motions))))
 (defn move-head

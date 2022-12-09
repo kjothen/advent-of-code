@@ -2,7 +2,6 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as string]
             [com.rpl.specter :refer [ALL transform]]))
-(defn parse-uint [s] (Integer/parseUnsignedInt s))
 (defn cell [vs m n] (nth (nth vs m) n))
 (defn make-range
   [vs m n view]
@@ -58,7 +57,7 @@
   (let [vs (->> (string/split-lines data)
                 (map (partial partition 1))
                 (mapv (comp vec flatten))
-                (transform [ALL ALL] #(parse-uint (str %))))]
+                (transform [ALL ALL] #(parse-long (str %))))]
     {:part-1 (+ (count (visibles vs)) (- (* 4 (count vs)) 4))
      :part-2 (apply max (scores vs))}))
 (let [test-data "30373
