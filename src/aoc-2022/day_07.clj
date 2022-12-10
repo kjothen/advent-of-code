@@ -1,15 +1,18 @@
 (ns aoc-2022.day-07
   (:require [clojure.java.io :as io]
             [clojure.string :as string]))
+
 (defn cd
   [path dir]
   (case dir
     "/" ["/"]
     ".." (vec (butlast path))
     (vec (conj path dir))))
+
 (defn make-path-keys
   [path]
   (if (= ["/"] path) path (vec (butlast (interleave path (repeat :children))))))
+
 (defn lines->tree
   [lines]
   (loop [tree {}
@@ -34,7 +37,9 @@
            tree)
          (next lines)
          path')))))
+
 (defn file-sizes [files] (reduce (fn [acc file] (+ acc (:size file))) 0 files))
+
 (defn tree->dir-sizes
   ([tree]
    (let [res (transient [])]
@@ -46,14 +51,17 @@
              (conj! res [path (file-sizes (:files v))])
              (when (:children v) (tree->dir-sizes res path (:children v)))))
          tree)))
+
 (defn subdirs
   [parent-dir dir->sizes]
   (filterv (fn [[dir _]] (string/starts-with? dir parent-dir)) dir->sizes))
+
 (defn subdir-sizes
   [dir->sizes]
   (reduce-kv (fn [m k v] (assoc m k (apply + (vals (subdirs k dir->sizes)))))
              {}
              dir->sizes))
+
 (defn process
   [data]
   (let [tree (->> (lines->tree data)
@@ -64,31 +72,8 @@
         target (- 30000000 free)]
     {:part-1 (apply + (filter #(<= % 100000) (vals tree)))
      :part-2 (apply min (filter #(>= % target) (vals tree)))}))
-(let
-  [test-data
-   "$ cd /
-$ ls
-dir a
-14848514 b.txt
-8504156 c.dat
-dir d
-$ cd a
-$ ls
-dir e
-29116 f
-2557 g
-62596 h.lst
-$ cd e
-$ ls
-584 i
-$ cd ..
-$ cd ..
-$ cd d
-$ ls
-4060174 j
-8033020 d.log
-5626152 d.ext
-7214296 k"
-   input-data (slurp (io/resource "aoc-2022/07/input.dat"))]
+
+(let [test-data (slurp (io/resource "aoc-2022/07/test.dat"))
+      input-data (slurp (io/resource "aoc-2022/07/input.dat"))]
   (assert (= {:part-1 1297159 :part-2 3866390} (process input-data)))
   (assert (= {:part-1 95437 :part-2 24933642} (process test-data))))

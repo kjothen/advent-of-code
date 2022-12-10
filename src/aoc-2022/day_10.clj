@@ -1,6 +1,6 @@
 (ns aoc-2022.day-10
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL LAST setval transform]]))
 
 (defn process
@@ -50,7 +50,7 @@
 
 (defn stringify-display
   [display]
-  (string/join \newline (map (partial apply str) display)))
+  (str/join \newline (map (partial apply str) display)))
 
 (defn result
   [data]
@@ -62,22 +62,11 @@
              (stringify-display
               (process data (partial cathode-ray-tube width) display)))})
 
-(let
-  [test-data (slurp (io/resource "aoc-2022/10/test-input.dat"))
-   input-data (slurp (io/resource "aoc-2022/10/input.dat"))
-   test-expected
-   "##..##..##..##..##..##..##..##..##..##..
-###...###...###...###...###...###...###.
-####....####....####....####....####....
-#####.....#####.....#####.....#####.....
-######......######......######......###.
-#######.......#######.......#######....."
-   expected
-   "####.###...##..###..#..#.####..##..#..#.
-#....#..#.#..#.#..#.#..#.#....#..#.#..#.
-###..#..#.#....#..#.####.###..#....####.
-#....###..#.##.###..#..#.#....#.##.#..#.
-#....#....#..#.#....#..#.#....#..#.#..#.
-#....#.....###.#....#..#.#.....###.#..#."]
-  (assert (= {:part-1 13140 :part-2 test-expected} (result test-data)))
-  (assert (= {:part-1 10760 :part-2 expected} (result input-data))))
+(defn slurp-resource [n] (string/trimr (slurp (io/resource n))))
+
+(let [test-input-data (slurp-resource "aoc-2022/10/test-input.dat")
+      input-data (slurp-resource "aoc-2022/10/input.dat")
+      test-output-data (slurp-resource "aoc-2022/10/test-output.dat")
+      output-data (slurp-resource "aoc-2022/10/output.dat")]
+  (assert (= {:part-1 13140 :part-2 test-output-data} (result test-input-data)))
+  (assert (= {:part-1 10760 :part-2 output-data} (result input-data))))

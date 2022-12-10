@@ -1,36 +1,52 @@
 (ns aoc-2022.day-03
   (:require [clojure.java.io :as io]
             [clojure.set]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL transform]]))
-(defn prioritize
+
+(defn priority
   [c]
   (if (Character/isLowerCase c)
     (+ 1 (- (int c) (int \a)))
     (+ 27 (- (int c) (int \A)))))
-(defn part-1
-  [data]
-  (->> data
-       (map (fn [x] (split-at (/ (count x) 2) x)))
-       (map (fn [[x y]] (clojure.set/intersection (set x) (set y))))))
-(defn part-2
-  [data]
-  (->> data
+
+(defn common-compartment-items
+  [rucksacks]
+  (->> rucksacks
+       (map (fn [items] (split-at (/ (count items) 2) items)))
+       (transform [ALL ALL] set)
+       (map (fn [compartment-items]
+              (apply clojure.set/intersection compartment-items)))))
+
+(defn common-group-items
+  [rucksacks]
+  (->> rucksacks
        (partition 3)
-       (map (fn [[x y z]] (clojure.set/intersection (set x) (set y) (set z))))))
-(defn process
-  ([data] {:part-1 (process part-1 data), :part-2 (process part-2 data)})
-  ([f data]
-   (->> (string/split-lines data)
-        f
-        (transform [ALL ALL] prioritize)
-        (map (partial apply +))
-        (apply +))))
-(let
-  [test-data
-     "vJrwpWtwJgWrhcsFMMfFFhFp\njqHRNqRjqzjGDLGLrsFMfFZSrLrFZsSL
-PmmdzqPrVvPwwTWBwg\nwMqvLMZHhHMvwLHjbvcjnnSBnvTQFn\nttgJtRGJQctTZtZT
-CrZsJsPPZsGzwwsLwLmpwMDw"
-   input-data (slurp (io/resource "aoc-2022/03/input.dat"))]
-  (assert (= {:part-1 157, :part-2 70} (process test-data)))
-  (assert (= {:part-1 7878, :part-2 2760} (process input-data))))
+       (transform [ALL ALL] set)
+       (map (fn [rucksack-items]
+              (apply clojure.set/intersection rucksack-items)))))
+
+(defn items->priorities [items] (transform [ALL ALL] priority items))
+
+(defn total-priorities
+  [priorities]
+  (->> priorities
+       (map (partial apply +))
+       (apply +)))
+
+(defn answer
+  [s]
+  (let [rucksacks (str/split-lines s)
+        compartment-items (common-compartment-items rucksacks)
+        group-items (common-group-items rucksacks)]
+    {:part-1 (->> compartment-items
+                  items->priorities
+                  total-priorities)
+     :part-2 (->> group-items
+                  items->priorities
+                  total-priorities)}))
+
+(let [test-data (slurp (io/resource "aoc-2022/03/test.dat"))
+      input-data (slurp (io/resource "aoc-2022/03/input.dat"))]
+  (assert (= {:part-1 157 :part-2 70} (answer test-data)))
+  (assert (= {:part-1 7878 :part-2 2760} (answer input-data))))
