@@ -1,6 +1,6 @@
 (ns aoc-2022.day-07
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
+            [clojure.string :as str]))
 
 (defn cd
   [path dir]
@@ -16,12 +16,12 @@
 (defn lines->tree
   [lines]
   (loop [tree {}
-         lines (string/split-lines lines)
+         lines (str/split-lines lines)
          path []]
     (if-not lines
       tree
       (let [line (first lines)
-            parts (vec (string/split line #" "))
+            parts (vec (str/split line #" "))
             cmd? (= "$" (first parts))
             cmd (when cmd? (second parts))
             path' (cond-> path
@@ -47,14 +47,14 @@
      (let [ret (persistent! res)] (apply hash-map (flatten ret)))))
   ([res dir tree]
    (mapv (fn [[k v]]
-           (let [path (string/join (if (< 1 (count dir)) "/" "") [dir k])]
+           (let [path (str/join (if (< 1 (count dir)) "/" "") [dir k])]
              (conj! res [path (file-sizes (:files v))])
              (when (:children v) (tree->dir-sizes res path (:children v)))))
          tree)))
 
 (defn subdirs
   [parent-dir dir->sizes]
-  (filterv (fn [[dir _]] (string/starts-with? dir parent-dir)) dir->sizes))
+  (filterv (fn [[dir _]] (str/starts-with? dir parent-dir)) dir->sizes))
 
 (defn subdir-sizes
   [dir->sizes]

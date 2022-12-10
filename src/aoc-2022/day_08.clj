@@ -1,6 +1,6 @@
 (ns aoc-2022.day-08
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL transform]]))
 
 (defn cell [vs m n] (nth (nth vs m) n))
@@ -64,7 +64,7 @@
 
 (defn process
   [data]
-  (let [vs (->> (string/split-lines data)
+  (let [vs (->> (str/split-lines data)
                 (map (partial partition 1))
                 (mapv (comp vec flatten))
                 (transform [ALL ALL] #(parse-long (str %))))]

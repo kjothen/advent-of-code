@@ -1,6 +1,6 @@
 (ns aoc-2022.day-06
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]))
+            [clojure.string :as str]))
 
 (defn marker
   [msg width]

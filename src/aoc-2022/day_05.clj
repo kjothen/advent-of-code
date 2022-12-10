@@ -1,12 +1,12 @@
 (ns aoc-2022.day-05
   (:require [clojure.java.io :as io]
             [clojure.set]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL MAP-VALS LAST select transform]]))
 
-(defn repeat-str [n s] (string/join (repeat n s)))
+(defn repeat-str [n s] (str/join (repeat n s)))
 
-(defn pad-str [n s pad] (string/join (take n (concat s (repeat pad)))))
+(defn pad-str [n s pad] (str/join (take n (concat s (repeat pad)))))
 
 (defn pad-lines [n lines pad] (map #(pad-str n % pad) lines))
 
@@ -19,13 +19,13 @@
          (map (partial partition 4))
          (transform [ALL ALL] #(apply str %))
          transpose
-         (map #(remove string/blank? %))
+         (map #(remove str/blank? %))
          (transform [ALL ALL] #(ffirst (next (re-matches #"\[(\w)\] " %))))
          (mapv (comp vec reverse)))))
 
 (defn parse-stack-keys
   [lines]
-  (mapv parse-long (string/split (string/trim (last lines)) #"\s+")))
+  (mapv parse-long (str/split (str/trim (last lines)) #"\s+")))
 
 (defn parse-stacks
   [lines]
@@ -70,8 +70,8 @@
 
 (defn process
   [data]
-  (let [[stack-lines instruction-lines] (map string/split-lines
-                                             (string/split data #"\n\n"))
+  (let [[stack-lines instruction-lines] (map str/split-lines
+                                             (str/split data #"\n\n"))
         stacks (parse-stacks stack-lines)
         instructions (parse-instructions instruction-lines)]
     {:part-1 (read-stacks (part-1 instructions stacks))

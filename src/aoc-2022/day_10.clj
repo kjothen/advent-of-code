@@ -8,10 +8,10 @@
   (loop [x 1
          cycle 1
          result initial-value
-         instructions (string/split-lines instruction-lines)]
+         instructions (str/split-lines instruction-lines)]
     (if-not instructions
       result
-      (let [[cmd arg] (string/split (first instructions) #" ")]
+      (let [[cmd arg] (str/split (first instructions) #" ")]
         (recur
          (condp = cmd "addx" (+ x (parse-long arg)) "noop" x)
          (condp = cmd "addx" (+ 2 cycle) "noop" (+ 1 cycle))
@@ -62,7 +62,7 @@
              (stringify-display
               (process data (partial cathode-ray-tube width) display)))})
 
-(defn slurp-resource [n] (string/trimr (slurp (io/resource n))))
+(defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
 
 (let [test-input-data (slurp-resource "aoc-2022/10/test-input.dat")
       input-data (slurp-resource "aoc-2022/10/input.dat")

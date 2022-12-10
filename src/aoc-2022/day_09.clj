@@ -1,14 +1,14 @@
 (ns aoc-2022.day-09
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL LAST transform]]))
 
 (defn parse-motions
   [motions]
   (transform [ALL LAST]
              parse-long
-             (mapv (fn [motion] (string/split motion #"\s"))
-                   (string/split-lines motions))))
+             (mapv (fn [motion] (str/split motion #"\s"))
+                   (str/split-lines motions))))
 
 (defn move-head
   [[x y] direction]

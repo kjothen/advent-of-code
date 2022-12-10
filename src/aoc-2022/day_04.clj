@@ -1,6 +1,6 @@
 (ns aoc-2022.day-04
   (:require [clojure.java.io :as io]
-            [clojure.string :as string]
+            [clojure.string :as str]
             [com.rpl.specter :refer [ALL transform]]))
 
 (defn filter-1
@@ -14,7 +14,7 @@
 (defn process
   ([data] {:part-1 (process filter-1 data) :part-2 (process filter-2 data)})
   ([filter-fn data]
-   (->> (string/split-lines data)
+   (->> (str/split-lines data)
         (map #(next (re-matches #"(\d+)-(\d+),(\d+)-(\d+)" %)))
         (transform [ALL ALL] parse-long)
         (filter filter-fn)
