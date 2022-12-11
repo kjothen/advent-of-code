@@ -3,41 +3,41 @@
             [clojure.string :as str]
             [com.rpl.specter :refer [ALL LAST setval transform]]))
 
-(defn process
-  [instruction-lines fn-accumulator initial-value]
+(defn accumulation
+  [instructions fn-accumulator initial-value]
   (loop [x 1
          cycle 1
          result initial-value
-         instructions (str/split-lines instruction-lines)]
+         instructions instructions]
     (if-not instructions
       result
-      (let [[cmd arg] (str/split (first instructions) #" ")]
-        (recur
-         (condp = cmd "addx" (+ x (parse-long arg)) "noop" x)
-         (condp = cmd "addx" (+ 2 cycle) "noop" (+ 1 cycle))
-         (fn-accumulator result cmd (when (some? arg) (parse-long arg)) x cycle)
-         (next instructions))))))
+      (let [[instruction operand] (str/split (first instructions) #" ")]
+        (recur (condp = instruction "addx" (+ x (parse-long operand)) "noop" x)
+               (condp = instruction "addx" (+ 2 cycle) "noop" (+ 1 cycle))
+               (fn-accumulator result instruction operand x cycle)
+               (next instructions))))))
 
 (defn signal-strengths
-  [strength-cycles strengths cmd arg x cycle]
+  [strength-cycles strengths instruction operand x cycle]
   (let [next-cycle (inc cycle)
         next-next-cycle (inc next-cycle)]
     (cond-> strengths
       (contains? strength-cycles next-cycle) (conj (* next-cycle x))
-      (and (= cmd "addx") (contains? strength-cycles next-next-cycle))
-      (conj (* next-next-cycle (+ x arg))))))
+      (and (= instruction "addx") (contains? strength-cycles next-next-cycle))
+        (conj (* next-next-cycle (+ x (parse-long operand)))))))
 
 (defn sprite-position [x] #{(dec x) x (inc x)})
 
 (defn pixel-position [cycle width] [(dec (mod cycle width)) (quot cycle width)])
 
-(defn cathode-ray-tube
-  [width display _ arg x cycle]
+(defn cathode-ray-tube-display
+  [width display _ operand x cycle]
   (let [[xpos ypos] (pixel-position cycle width)
         [next-xpos next-ypos] (pixel-position (+ 1 cycle) width)
         [next-next-xpos next-next-ypos] (pixel-position (+ 2 cycle) width)
         sprite-pos (sprite-position x)
-        next-next-sprite-pos (when (some? arg) (sprite-position (+ x arg)))]
+        next-next-sprite-pos (when (some? operand)
+                               (sprite-position (+ x (parse-long operand))))]
     (cond->> display
              (contains? sprite-pos xpos)
              (setval [ypos xpos] \#)
@@ -52,15 +52,20 @@
   [display]
   (str/join \newline (map (partial apply str) display)))
 
-(defn result
-  [data]
-  {:part-1
-   (let [strength-cycles #{20 60 100 140 180 220}]
-     (apply + (process data (partial signal-strengths strength-cycles) [])))
-   :part-2 (let [[height width] [6 40]
-                 display (vec (repeat height (vec (repeat width \.))))]
-             (stringify-display
-              (process data (partial cathode-ray-tube width) display)))})
+(defn answer
+  [s]
+  (let [program (str/split-lines s)]
+    {:part-1 (let [strength-cycles #{20 60 100 140 180 220}]
+               (apply +
+                 (accumulation program
+                               (partial signal-strengths strength-cycles)
+                               []))),
+     :part-2 (let [[height width] [6 40]
+                   display (vec (repeat height (vec (repeat width \.))))]
+               (stringify-display
+                 (accumulation program
+                               (partial cathode-ray-tube-display width)
+                               display)))}))
 
 (defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
 
@@ -68,5 +73,6 @@
       input-data (slurp-resource "aoc-2022/10/input.dat")
       test-output-data (slurp-resource "aoc-2022/10/test-output.dat")
       output-data (slurp-resource "aoc-2022/10/output.dat")]
-  (assert (= {:part-1 13140 :part-2 test-output-data} (result test-input-data)))
-  (assert (= {:part-1 10760 :part-2 output-data} (result input-data))))
+  (assert (= {:part-1 13140, :part-2 test-output-data}
+             (answer test-input-data)))
+  (assert (= {:part-1 10760, :part-2 output-data} (answer input-data))))

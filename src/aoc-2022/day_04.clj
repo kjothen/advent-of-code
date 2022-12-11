@@ -23,4 +23,4 @@
 (let [test-data (slurp (io/resource "aoc-2022/04/test.dat"))
       input-data (slurp (io/resource "aoc-2022/04/input.dat"))]
   (assert (= {:part-1 2 :part-2 4} (process test-data)))
-  (assert (= {:part-1 503 :part-2 807})))
+  (assert (= {:part-1 503 :part-2 })))
