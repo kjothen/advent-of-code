@@ -24,7 +24,7 @@
     (cond-> strengths
       (contains? strength-cycles next-cycle) (conj (* next-cycle x))
       (and (= instruction "addx") (contains? strength-cycles next-next-cycle))
-        (conj (* next-next-cycle (+ x (parse-long operand)))))))
+      (conj (* next-next-cycle (+ x (parse-long operand)))))))
 
 (defn sprite-position [x] #{(dec x) x (inc x)})
 
@@ -57,15 +57,15 @@
   (let [program (str/split-lines s)]
     {:part-1 (let [strength-cycles #{20 60 100 140 180 220}]
                (apply +
-                 (accumulation program
-                               (partial signal-strengths strength-cycles)
-                               []))),
+                      (accumulation program
+                                    (partial signal-strengths strength-cycles)
+                                    [])))
      :part-2 (let [[height width] [6 40]
                    display (vec (repeat height (vec (repeat width \.))))]
                (stringify-display
-                 (accumulation program
-                               (partial cathode-ray-tube-display width)
-                               display)))}))
+                (accumulation program
+                              (partial cathode-ray-tube-display width)
+                              display)))}))
 
 (defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
 
@@ -73,6 +73,5 @@
       input-data (slurp-resource "aoc-2022/10/input.dat")
       test-output-data (slurp-resource "aoc-2022/10/test-output.dat")
       output-data (slurp-resource "aoc-2022/10/output.dat")]
-  (assert (= {:part-1 13140, :part-2 test-output-data}
-             (answer test-input-data)))
-  (assert (= {:part-1 10760, :part-2 output-data} (answer input-data))))
+  (assert (= {:part-1 13140 :part-2 test-output-data} (answer test-input-data)))
+  (assert (= {:part-1 10760 :part-2 output-data} (answer input-data))))

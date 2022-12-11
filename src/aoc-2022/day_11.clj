@@ -12,8 +12,8 @@
 (defn ->operation
   [s]
   (let [[operator operand]
-          (next (re-matches #"Operation: new = old ([\*+]) (\w+)" s))]
-    {:operator (first operator),
+        (next (re-matches #"Operation: new = old ([\*+]) (\w+)" s))]
+    {:operator (first operator)
      :operand (if (= "old" operand) :old (parse-long operand))}))
 
 (defn ->divisor
@@ -33,16 +33,16 @@
       monkey
       (let [line (str/trim (first lines))]
         (recur (next lines)
-               (cond (str/starts-with? line "Monkey") (assoc monkey
-                                                        :id (->id line))
+               (cond (str/starts-with? line "Monkey")
+                     (assoc monkey :id (->id line))
                      (str/starts-with? line "Starting items")
-                       (assoc monkey :items (->items line))
+                     (assoc monkey :items (->items line))
                      (str/starts-with? line "Operation")
-                       (assoc monkey :operation (->operation line))
-                     (str/starts-with? line "Test") (assoc monkey
-                                                      :divisor (->divisor line))
+                     (assoc monkey :operation (->operation line))
+                     (str/starts-with? line "Test")
+                     (assoc monkey :divisor (->divisor line))
                      (str/starts-with? line "If")
-                       (update monkey :condition merge (->condition line))
+                     (update monkey :condition merge (->condition line))
                      :else monkey))))))
 
 (defn item-operation
@@ -69,18 +69,18 @@
             items (:items monkey)
             last-item? (<= (count items) 1)]
         (recur
-          (if last-item? (inc id) id)
-          (if-let [item (first items)]
-            (let [worry-level (worry-level item monkey opts)
-                  throw-id (throw-monkey-id worry-level monkey)]
-              (-> result
-                  (update-in [id :inspected] (fnil inc 0))
-                  (update-in [id :items] next)
-                  (update-in [throw-id :items] (comp vec conj) worry-level)))
-            result))))))
+         (if last-item? (inc id) id)
+         (if-let [item (first items)]
+           (let [worry-level (worry-level item monkey opts)
+                 throw-id (throw-monkey-id worry-level monkey)]
+             (-> result
+                 (update-in [id :inspected] (fnil inc 0))
+                 (update-in [id :items] next)
+                 (update-in [throw-id :items] (comp vec conj) worry-level)))
+           result))))))
 
 (defn rounds
-  [monkeys & {:keys [iterations], :as opts}]
+  [monkeys & {:keys [iterations] :as opts}]
   (loop [monkeys monkeys
          iterations iterations]
     (if (zero? iterations)
@@ -94,14 +94,14 @@
   (let [monkeys (->> (str/split s #"\n\n")
                      (map ->monkey))
         common-denominator (apply * (map :divisor monkeys))]
-    {:part-1 (inspected (rounds monkeys {:iterations 20, :worry-divisor 3})),
+    {:part-1 (inspected (rounds monkeys {:iterations 20 :worry-divisor 3}))
      :part-2 (inspected (rounds monkeys
-                                {:iterations 10000,
+                                {:iterations 10000
                                  :worry-modulo common-denominator}))}))
 
 (defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
 
 (let [test-data (slurp-resource "aoc-2022/11/test.dat")
       input-data (slurp-resource "aoc-2022/11/input.dat")]
-  (assert (= {:part-1 10605, :part-2 2713310158} (answer test-data)))
-  (assert (= {:part-1 57838, :part-2 15050382231} (answer input-data))))
+  (assert (= {:part-1 10605 :part-2 2713310158} (answer test-data)))
+  (assert (= {:part-1 57838 :part-2 15050382231} (answer input-data))))

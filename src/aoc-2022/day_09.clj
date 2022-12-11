@@ -44,19 +44,19 @@
             motions' (if (= (inc num-moved) total-moves) (next motions) motions)
             H' (move-head H direction)
             T' (next
-                 (reduce (fn [res t] (vec (conj res (move-tail t (last res)))))
-                   [H']
-                   T))
+                (reduce (fn [res t] (vec (conj res (move-tail t (last res)))))
+                        [H']
+                        T))
             visited' (conj visited (last T'))
             num-moved' (if (= (inc num-moved) total-moves) 0 (inc num-moved))]
         (recur motions' H' T' visited' num-moved')))))
 
 (defn answer
   [s]
-  {:part-1 (count (distinct (visit (motions s) 1))),
+  {:part-1 (count (distinct (visit (motions s) 1)))
    :part-2 (count (distinct (visit (motions s) 9)))})
 
 (let [test-data (slurp (io/resource "aoc-2022/09/test.dat"))
       input-data (slurp (io/resource "aoc-2022/09/input.dat"))]
-  (assert (= {:part-1 13, :part-2 1} (answer test-data)))
-  (assert (= {:part-1 5513, :part-2 2427} (answer input-data))))
+  (assert (= {:part-1 13 :part-2 1} (answer test-data)))
+  (assert (= {:part-1 5513 :part-2 2427} (answer input-data))))
