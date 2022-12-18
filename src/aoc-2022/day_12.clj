@@ -111,7 +111,7 @@
   (loop [path []
          v end]
     (if (= start v)
-      (do (prn (reverse (conj path start))) (reverse (conj path start)))
+      (reverse (conj path start))
       (recur (conj path v) (get paths v)))))
 
 (defn answer
