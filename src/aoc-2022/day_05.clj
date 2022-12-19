@@ -5,11 +5,8 @@
             [com.rpl.specter :refer [ALL MAP-VALS LAST select transform]]))
 
 (defn repeat-str [n s] (str/join (repeat n s)))
-
 (defn pad-str [n s pad] (str/join (take n (concat s (repeat pad)))))
-
 (defn pad-lines [n lines pad] (map #(pad-str n % pad) lines))
-
 (defn transpose [coll] (apply map vector coll))
 
 (defn stack-lines->columns
