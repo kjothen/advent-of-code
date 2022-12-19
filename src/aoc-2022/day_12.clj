@@ -78,26 +78,26 @@
 ;; search
 (defn bfs
   [grid start fn-neighbours]
-  (loop [tracks (hash-map)
+  (loop [end->start (hash-map)
          marked (hash-set start)
          q (queue (list start))]
     (if (empty? q)
-      tracks
+      end->start
       (let [v (peek q)
             neighbours (set (fn-neighbours grid v))
             unmarked (set/difference neighbours marked)]
-        (recur (reduce #(assoc %1 %2 v) tracks unmarked)
+        (recur (reduce #(assoc %1 %2 v) end->start unmarked)
                (set/union marked unmarked)
                (reduce #(conj %1 %2) (pop q) unmarked))))))
 
 (defn path
-  [tracks start end]
-  (when (contains? tracks end)
+  [end->start start end]
+  (when (contains? end->start end)
     (loop [path []
            v end]
       (if (= start v)
         (reverse (conj path start))
-        (recur (conj path v) (get tracks v))))))
+        (recur (conj path v) (get end->start v))))))
 
 ;; answer
 (defn answer
@@ -105,13 +105,13 @@
   (let [grid (->heightmap s)
         end (pos->nth grid (end-pos grid))]
     {:part-1 (let [start (pos->nth grid (start-pos grid))
-                   tracks (bfs grid start neighbours)
-                   path (path tracks start end)]
+                   end->start (bfs grid start neighbours)
+                   path (path end->start start end)]
                (dec (count path)))
      :part-2 (let [starts (filter #(lowest? grid (nth->pos grid %1))
                                   (range (* (width grid) (height grid))))
-                   paths (reduce #(let [tracks (bfs grid %2 neighbours)
-                                        path (path tracks %2 end)]
+                   paths (reduce #(let [end->start (bfs grid %2 neighbours)
+                                        path (path end->start %2 end)]
                                     (cond-> %1 (some? path) (conj path)))
                                  []
                                  starts)]
