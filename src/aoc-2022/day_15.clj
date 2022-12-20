@@ -21,7 +21,7 @@
                           :beacon beacon
                           :reach (distance sensor beacon))))))
 
-(defn ->sorted-beacon-sensors
+(defn sorted-beacon-sensors
   [beacon-sensors]
   (sort (fn [x y]
           (compare (- (get-in x [:sensor 1]) (get x :reach))
@@ -92,7 +92,7 @@
 
 (defn answer
   [s row search-interval]
-  (let [beacon-sensors (->sorted-beacon-sensors (->beacon-sensors s))]
+  (let [beacon-sensors (sorted-beacon-sensors (->beacon-sensors s))]
     {:part-1 (- (sensor-row-interval-size beacon-sensors row)
                 (row-beacons beacon-sensors row))
      :part-2 (let [[x y] (distress-beacon beacon-sensors search-interval)]
