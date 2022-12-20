@@ -92,9 +92,9 @@
 
 (defn answer
   [s row search-interval]
-  (let [beacon-sensors (->sorted-beacon-sensors (->beacon-sensors s))
-        row-beacons (row-beacons beacon-sensors row)]
-    {:part-1 (- (sensor-row-interval-size beacon-sensors row) row-beacons)
+  (let [beacon-sensors (->sorted-beacon-sensors (->beacon-sensors s))]
+    {:part-1 (- (sensor-row-interval-size beacon-sensors row)
+                (row-beacons beacon-sensors row))
      :part-2 (let [[x y] (distress-beacon beacon-sensors search-interval)]
                (+ (* x 4000000) y))}))
 
