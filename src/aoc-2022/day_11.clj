@@ -38,12 +38,9 @@
 
 (defn ->monkey
   [s]
-  (loop [ss (str/split-lines s)
-         monkey {}]
-    (if-not ss
-      monkey
-      (let [s (str/trim (first ss))]
-        (recur (next ss) (monkey-reader monkey s))))))
+  (reduce (fn [monkey s] (monkey-reader monkey (str/trim s)))
+          {}
+          (str/split-lines s)))
 
 (defn ->monkeys [s] (map ->monkey (str/split s #"\n\n")))
 
