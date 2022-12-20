@@ -17,7 +17,7 @@
                 :let [x (rem n width)
                       y (quot n width)]]
             (f n width height x y))}))
-
+
 (defn width [grid] (:width grid))
 (defn height [grid] (:height grid))
 

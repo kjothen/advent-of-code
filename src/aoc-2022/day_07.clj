@@ -62,7 +62,7 @@
              {}
              dir->sizes))
 
-(defn process
+(defn answer
   [data]
   (let [tree (->> (lines->tree data)
                   tree->dir-sizes
@@ -75,5 +75,5 @@
 
 (let [test-data (slurp (io/resource "aoc-2022/07/test.dat"))
       input-data (slurp (io/resource "aoc-2022/07/input.dat"))]
-  (assert (= {:part-1 1297159 :part-2 3866390} (process input-data)))
-  (assert (= {:part-1 95437 :part-2 24933642} (process test-data))))
+  (assert (= {:part-1 1297159 :part-2 3866390} (answer input-data)))
+  (assert (= {:part-1 95437 :part-2 24933642} (answer test-data))))

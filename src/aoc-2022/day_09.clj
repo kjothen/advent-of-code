@@ -1,13 +1,14 @@
 (ns aoc-2022.day-09
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [com.rpl.specter :refer [ALL LAST transform]]))
+            [com.rpl.specter :as s]))
 
-(defn motions
+(defn ->motions
   [s]
-  (transform [ALL LAST]
-             parse-long
-             (mapv (fn [motion] (str/split motion #"\s")) (str/split-lines s))))
+  (s/transform [s/ALL s/LAST]
+               parse-long
+               (mapv (fn [motion] (str/split motion #"\s"))
+                     (str/split-lines s))))
 
 (defn move-head
   [[x y] direction]
@@ -53,8 +54,9 @@
 
 (defn answer
   [s]
-  {:part-1 (count (distinct (visit (motions s) 1)))
-   :part-2 (count (distinct (visit (motions s) 9)))})
+  (let [motions (->motions s)]
+    {:part-1 (count (distinct (visit motions 1)))
+     :part-2 (count (distinct (visit motions 9)))}))
 
 (let [test-data (slurp (io/resource "aoc-2022/09/test.dat"))
       input-data (slurp (io/resource "aoc-2022/09/input.dat"))]

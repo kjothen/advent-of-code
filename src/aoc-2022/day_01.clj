@@ -1,18 +1,18 @@
 (ns aoc-2022.day-01
   (:require [clojure.java.io :as io]
             [clojure.string :as str]
-            [com.rpl.specter :refer [ALL transform]]))
+            [com.rpl.specter :as s]))
 
-(defn elf-calories
+(defn ->elf-calories
   [s]
   (->> (str/split s #"\n\n")
        (map str/split-lines)
-       (transform [ALL ALL] parse-long)
+       (s/transform [s/ALL s/ALL] parse-long)
        (map (partial apply +))))
 
 (defn answer
   [s]
-  (let [sorted-elf-calories (sort > (elf-calories s))]
+  (let [sorted-elf-calories (sort > (->elf-calories s))]
     {:part-1 (first sorted-elf-calories)
      :part-2 (apply + (take 3 sorted-elf-calories))}))
 

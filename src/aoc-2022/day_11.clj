@@ -2,48 +2,50 @@
   (:require [clojure.java.io :as io]
             [clojure.string :as str]))
 
-(defn ->id [s] (parse-long (last (re-matches #"^Monkey (\d+):" s))))
+(defmulti monkey-reader (fn [monkey s] (first (str/split s #" "))))
 
-(defn ->items
-  [s]
-  (let [items-str (last (re-matches #"^Starting items: ([0-9, ]+)" s))]
-    (mapv parse-long (str/split items-str #", "))))
+(defmethod monkey-reader "Monkey"
+  [monkey s]
+  (let [id (parse-long (last (re-matches #"^Monkey (\d+):" s)))]
+    (assoc monkey :id id)))
 
-(defn ->operation
-  [s]
+(defmethod monkey-reader "Starting"
+  [monkey s]
+  (let [items-str (last (re-matches #"^Starting items: ([0-9, ]+)" s))
+        items (mapv parse-long (str/split items-str #", "))]
+    (assoc monkey :items items)))
+
+(defmethod monkey-reader "Operation:"
+  [monkey s]
   (let [[operator operand]
         (next (re-matches #"Operation: new = old ([\*+]) (\w+)" s))]
-    {:operator (first operator)
-     :operand (if (= "old" operand) :old (parse-long operand))}))
+    (assoc monkey
+           :operation
+           {:operator (first operator)
+            :operand (if (= "old" operand) :old (parse-long operand))})))
 
-(defn ->divisor
-  [s]
-  (parse-long (last (re-matches #"Test: divisible by (\d+)" s))))
+(defmethod monkey-reader "Test:"
+  [monkey s]
+  (let [divisor (parse-long (last (re-matches #"Test: divisible by (\d+)" s)))]
+    (assoc monkey :divisor divisor)))
 
-(defn ->condition
-  [s]
+(defmethod monkey-reader "If"
+  [monkey s]
   (let [[branch id] (next (re-matches #"If (\w+): throw to monkey (\d+)" s))]
-    {(parse-boolean branch) (parse-long id)}))
+    (update monkey :condition merge {(parse-boolean branch) (parse-long id)})))
+
+(defmethod monkey-reader :default [monkey s] monkey)
 
 (defn ->monkey
   [s]
-  (loop [lines (str/split-lines s)
+  (loop [ss (str/split-lines s)
          monkey {}]
-    (if-not lines
+    (if-not ss
       monkey
-      (let [line (str/trim (first lines))]
-        (recur (next lines)
-               (cond (str/starts-with? line "Monkey")
-                     (assoc monkey :id (->id line))
-                     (str/starts-with? line "Starting items")
-                     (assoc monkey :items (->items line))
-                     (str/starts-with? line "Operation")
-                     (assoc monkey :operation (->operation line))
-                     (str/starts-with? line "Test")
-                     (assoc monkey :divisor (->divisor line))
-                     (str/starts-with? line "If")
-                     (update monkey :condition merge (->condition line))
-                     :else monkey))))))
+      (let [s (str/trim (first ss))]
+        (recur (next ss) (monkey-reader monkey s))))))
+
+(defn ->monkeys [s] (map ->monkey (str/split s #"\n\n")))
 
 (defn item-operation
   [item {:keys [operator operand]}]
@@ -91,8 +93,7 @@
 
 (defn answer
   [s]
-  (let [monkeys (->> (str/split s #"\n\n")
-                     (map ->monkey))
+  (let [monkeys (->monkeys s)
         common-denominator (apply * (map :divisor monkeys))]
     {:part-1 (inspected (rounds monkeys {:iterations 20 :worry-divisor 3}))
      :part-2 (inspected (rounds monkeys
