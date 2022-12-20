@@ -1,6 +1,5 @@
 (ns aoc-2022.day-14
-  (:require [clojure.edn :as edn]
-            [clojure.java.io :as io]
+  (:require [clojure.java.io :as io]
             [clojure.string :as str]
             [com.rpl.specter :as s]))
 
