@@ -100,8 +100,8 @@
 
 (defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
 
-(let [test-data (slurp-resource "aoc-2022/15/test.dat")
-      input-data (slurp-resource "aoc-2022/15/input.dat")]
-  (assert (= {:part-1 26 :part-2 56000011} (answer test-data 10 [0 20])))
-  (assert (= {:part-1 5564017 :part-2 11558423398893}
-             (answer input-data 2000000 [0 4000000]))))
+(time (let [test-data (slurp-resource "aoc-2022/15/test.dat")
+            input-data (slurp-resource "aoc-2022/15/input.dat")]
+        (assert (= {:part-1 26 :part-2 56000011} (answer test-data 10 [0 20])))
+        (assert (= {:part-1 5564017 :part-2 11558423398893}
+                   (answer input-data 2000000 [0 4000000])))))
