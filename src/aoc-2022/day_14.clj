@@ -3,9 +3,9 @@
             [clojure.string :as str]
             [com.rpl.specter :as s]))
 
-(def rock \#)
-(def air \.)
-(def sand \o)
+(def ROCK \#)
+(def AIR \.)
+(def SAND \o)
 
 (defn ->rock-paths
   [s]
@@ -27,7 +27,7 @@
     {:offset (min x x')
      :width width
      :height height
-     :data (vec (for [_ (range height)] (vec (repeat width air))))}))
+     :data (vec (for [_ (range height)] (vec (repeat width AIR))))}))
 
 (defn inf-bottom-cave
   [[x y x' y']]
@@ -39,7 +39,7 @@
      :width width
      :height height
      :data (vec (for [i (range height)]
-                  (vec (repeat width (if (= height (inc i)) rock air)))))}))
+                  (vec (repeat width (if (= height (inc i)) ROCK AIR)))))}))
 
 (defn pad-str [n s pad] (str/join (take n (concat s (repeat pad)))))
 (defn print-cave
@@ -55,24 +55,18 @@
   (and (<= (:offset cave) x (dec (+ (:width cave) (:offset cave))))
        (<= 0 y (dec (:height cave)))))
 
-(defn ->rock-formation
+(defn rock-cave-formation
   [cave [[x y] [x' y']]]
-  (loop [cave cave
-         xs (range (min x x') (inc (max x x')))]
-    (if (empty? xs)
-      cave
-      (recur
-       (loop [cave cave
-              ys (range (min y y') (inc (max y y')))]
-         (if (empty? ys)
-           cave
-           (recur (let [x (first xs) y (first ys)] (set-value cave [x y] rock))
-                  (rest ys))))
-       (rest xs)))))
+  (let [positions (for [a (range (min x x') (inc (max x x')))
+                        b (range (min y y') (inc (max y y')))]
+                    [a b])]
+    (reduce (fn [cave position] (set-value cave position ROCK))
+            cave
+            positions)))
 
 (defn rock-cave-formations
   [cave formations]
-  (reduce (fn [cave formation] (->rock-formation cave formation))
+  (reduce (fn [cave formation] (rock-cave-formation cave formation))
           cave
           formations))
 
@@ -86,7 +80,7 @@
 (defn down-left [[x y]] [(dec x) (inc y)])
 (defn down-right [[x y]] [(inc x) (inc y)])
 
-(defn free? [cave pos] (or (not (in-cave? cave pos)) (= air (value cave pos))))
+(defn free? [cave pos] (or (not (in-cave? cave pos)) (= AIR (value cave pos))))
 (defn down? [cave pos] (free? cave (down pos)))
 (defn down-left? [cave pos] (free? cave (down-left pos)))
 (defn down-right? [cave pos] (free? cave (down-right pos)))
@@ -101,7 +95,7 @@
       (if-not (in-cave? cave next-sand-pos)
         nil
         (if (= sand-pos next-sand-pos)
-          (if (and (= sand-pos start-pos) (= sand (value cave sand-pos)))
+          (if (and (= sand-pos start-pos) (= SAND (value cave sand-pos)))
             nil
             sand-pos)
           (recur next-sand-pos))))))
@@ -113,7 +107,7 @@
     (let [pos (sand-drop-position cave start-pos)]
       (if (nil? pos)
         {:cave cave :units units}
-        (recur (set-value cave pos sand) (inc units))))))
+        (recur (set-value cave pos SAND) (inc units))))))
 
 (defn answer
   [s]
