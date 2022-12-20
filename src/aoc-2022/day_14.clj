@@ -20,7 +20,7 @@
         ys (s/select [s/ALL s/ALL s/LAST] rock-paths)]
     [(apply min xs) (apply min ys) (apply max xs) (apply max ys)]))
 
-(defn ->cave
+(defn cave
   [[x y x' y']]
   (let [height (inc (max y y'))
         width (inc (- (max x x') (min x x')))]
@@ -29,9 +29,9 @@
      :height height
      :data (vec (for [_ (range height)] (vec (repeat width air))))}))
 
-(defn ->inf-bottom-cave
+(defn inf-bottom-cave
   [[x y x' y']]
-  (let [cave (->cave [x y x' y'])
+  (let [cave (cave [x y x' y'])
         height (+ 2 (:height cave))
         width (+ (:width cave) height height)
         offset (- (:offset cave) height)]
@@ -70,23 +70,17 @@
                   (rest ys))))
        (rest xs)))))
 
-(defn ->rock-formations
+(defn rock-cave-formations
   [cave formations]
-  (loop [cave cave
-         formations formations]
-    (if (empty? formations)
-      cave
-      (recur (->rock-formation cave (first formations)) (rest formations)))))
+  (reduce (fn [cave formation] (->rock-formation cave formation))
+          cave
+          formations))
 
-(defn ->rock-cave
+(defn rock-cave
   [cave rock-paths]
-  (let [formations (s/transform [s/ALL] #(partition 2 1 %) rock-paths)]
-    (loop [cave cave
-           formations formations]
-      (if (empty? formations)
-        cave
-        (recur (->rock-formations cave (first formations))
-               (rest formations))))))
+  (reduce (fn [cave formations] (rock-cave-formations cave formations))
+          cave
+          (s/transform [s/ALL] #(partition 2 1 %) rock-paths)))
 
 (defn down [[x y]] [x (inc y)])
 (defn down-left [[x y]] [(dec x) (inc y)])
@@ -126,10 +120,10 @@
   (let [start-pos [500 0]
         rock-paths (->rock-paths s)
         rect (bounding-rect rock-paths)
-        cave (->cave rect)
-        inf-bottom-cave (->inf-bottom-cave rect)
+        cave (cave rect)
+        inf-bottom-cave (inf-bottom-cave rect)
         units (fn [cave]
-                (:units (sand-units (->rock-cave cave rock-paths) start-pos)))]
+                (:units (sand-units (rock-cave cave rock-paths) start-pos)))]
     {:part-1 (units cave) :part-2 (units inf-bottom-cave)}))
 
 (defn slurp-resource [n] (str/trimr (slurp (io/resource n))))
