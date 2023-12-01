@@ -19,10 +19,7 @@
                     (zero? idx)
                     (reduced [idx digit])
 
-                    (nil? lowest)
-                    [idx digit]
-
-                    (< idx lowest)
+                    (or (nil? lowest) (< idx lowest))
                     [idx digit]
 
                     :else
@@ -40,10 +37,7 @@
                     (= idx (- (count s) (count digit)))
                     (reduced [idx digit])
 
-                    (nil? highest)
-                    [idx digit]
-
-                    (> idx highest)
+                    (or (nil? highest) (> idx highest))
                     [idx digit]
 
                     :else
