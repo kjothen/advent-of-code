@@ -1,7 +1,7 @@
 (ns aoc-2023.day-01
   (:require
     [clojure.java.io :as io]
-    [clojure.string :as str]))
+    [clojure.string :as str]
     [clojure.test :refer [deftest is testing]]))
 
 (defn calibration-value
@@ -9,32 +9,57 @@
   (let [digits (filter (fn [c] (Character/isDigit c)) s)]
     (parse-long (str (first digits) (last digits)))))
 
+(defn first-digit
+  [s digits]
+  (reduce (fn [[lowest item] digit]
+            (let [idx (str/index-of s digit)]
+              (cond (nil? idx)
+                    [lowest item]
+
+                    (zero? idx)
+                    (reduced [idx digit])
+
+                    (nil? lowest)
+                    [idx digit]
+
+                    (< idx lowest)
+                    [idx digit]
+
+                    :else
+                    [lowest item])))
+          [nil nil]
+          digits))
+
+(defn last-digit
+  [s digits]
+  (reduce (fn [[highest item] digit]
+            (let [idx (str/last-index-of s digit)]
+              (cond (nil? idx)
+                    [highest item]
+
+                    (= idx (- (count s) (count digit)))
+                    (reduced [idx digit])
+
+                    (nil? highest)
+                    [idx digit]
+
+                    (> idx highest)
+                    [idx digit]
+
+                    :else
+                    [highest item])))
+          [nil nil]
+          digits))
+
 ;!zprint {:map {:nl-separator? false :flow true}}
 (defn spelled-calibration-value
   [s]
-  (let [spelled-out-digits {"one" 1 "two" 2 "three" 3 "four" 4 "five" 5
-                            "six" 6 "seven" 7 "eight" 8 "nine" 9
-                            "1" 1 "2" 2 "3" 3 "4" 4 "5" 5
-                            "6" 6 "7" 7 "8" 8 "9" 9 "0" 0}
-        first-digit (reduce (fn [[lowest item] digit]
-                              (let [idx (str/index-of s digit)]
-                                (cond (nil? idx) [lowest item]
-                                      (zero? idx) (reduced [idx digit])
-                                      (nil? lowest) [idx digit]
-                                      (< idx lowest) [idx digit]
-                                      :else [lowest item])))
-                            [nil nil]
-                            (keys spelled-out-digits))
-        last-digit (reduce (fn [[highest item] digit]
-                             (let [idx (str/last-index-of s digit)]
-                               (cond (nil? idx) [highest item]
-                                     (nil? highest) [idx digit]
-                                     (> idx highest) [idx digit]
-                                     :else [highest item])))
-                           [nil nil]
-                           (keys spelled-out-digits))]
-    (parse-long (str (get spelled-out-digits (second first-digit))
-                     (get spelled-out-digits (second last-digit))))))
+  (let [digits {"one" 1 "two" 2 "three" 3 "four" 4 "five" 5
+                "six" 6 "seven" 7 "eight" 8 "nine" 9
+                "1" 1 "2" 2 "3" 3 "4" 4 "5" 5
+                "6" 6 "7" 7 "8" 8 "9" 9 "0" 0}]
+    (parse-long (str (get digits (second (first-digit s (keys digits))))
+                     (get digits (second (last-digit s (keys digits))))))))
 
 (defn answer
   [s calibration-fn]
