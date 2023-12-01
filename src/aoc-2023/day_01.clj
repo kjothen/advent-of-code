@@ -2,6 +2,7 @@
   (:require
     [clojure.java.io :as io]
     [clojure.string :as str]))
+    [clojure.test :refer [deftest is testing]]))
 
 (defn calibration-value
   [s]
@@ -18,6 +19,7 @@
         first-digit (reduce (fn [[lowest item] digit]
                               (let [idx (str/index-of s digit)]
                                 (cond (nil? idx) [lowest item]
+                                      (zero? idx) (reduced [idx digit])
                                       (nil? lowest) [idx digit]
                                       (< idx lowest) [idx digit]
                                       :else [lowest item])))
@@ -34,17 +36,21 @@
     (parse-long (str (get spelled-out-digits (second first-digit))
                      (get spelled-out-digits (second last-digit))))))
 
-(defn answer [s calibration-fn]
+(defn answer
+  [s calibration-fn]
   (->> (str/split s #"\n")
        (map calibration-fn)
        (apply +)))
 
-(let [test-1-data (slurp (io/resource "aoc-2023/01/test-1.dat"))
-      test-2-data (slurp (io/resource "aoc-2023/01/test-2.dat"))
-      input-data (slurp (io/resource "aoc-2023/01/input.dat"))]
-  (assert (= {:part-1 142 :part-2 281}
-             {:part-1 (answer test-1-data calibration-value)
-              :part-2 (answer test-2-data spelled-calibration-value)}))
-  (assert (= {:part-1 54605 :part-2 55429}
-             {:part-1 (answer input-data calibration-value)
-              :part-2 (answer input-data spelled-calibration-value)})))
+(deftest day-01
+  (testing "test data"
+    (let [data [(slurp (io/resource "aoc-2023/01/test-1.dat"))
+                (slurp (io/resource "aoc-2023/01/test-2.dat"))]]
+      (is (= {:part-1 142 :part-2 281}
+             {:part-1 (answer (first data) calibration-value)
+              :part-2 (answer (second data) spelled-calibration-value)}))))
+  (testing "input data"
+    (let [data (slurp (io/resource "aoc-2023/01/input.dat"))]
+      (is (= {:part-1 54605 :part-2 55429}
+             {:part-1 (answer data calibration-value)
+              :part-2 (answer data spelled-calibration-value)})))))
