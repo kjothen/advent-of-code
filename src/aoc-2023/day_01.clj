@@ -9,24 +9,25 @@
   (let [digits (filter (fn [c] (Character/isDigit c)) s)]
     (parse-long (str (first digits) (last digits)))))
 
-(defn first-spelled-digit
-  [s digits]
-  (re-find (re-pattern (str/join "|" digits)) s))
+(defn first-match
+  [s matches]
+  (let [pattern (re-pattern (str/join "|" matches))] (re-find pattern s)))
 
-(defn last-spelled-digit
-  [s digits]
-  (str/reverse (re-find (re-pattern (str/join "|" (map str/reverse digits)))
-                        (str/reverse s))))
+(defn last-match
+  [s matches]
+  (let [pattern (re-pattern (str/join "|" (map str/reverse matches)))]
+    (str/reverse (re-find pattern (str/reverse s)))))
 
-;!zprint {:map {:nl-separator? false :flow true}}
+;!zprint {:format :skip}
 (defn spelled-calibration-value
   [s]
-  (let [digits {"one" 1 "two" 2 "three" 3 "four" 4 "five" 5
-                "six" 6 "seven" 7 "eight" 8 "nine" 9
-                "1" 1 "2" 2 "3" 3 "4" 4 "5" 5
-                "6" 6 "7" 7 "8" 8 "9" 9 "0" 0}]
-    (parse-long (str (get digits (first-spelled-digit s (keys digits)))
-                     (get digits (last-spelled-digit s (keys digits)))))))
+  (let [spelling->value {"one" 1 "two" 2 "three" 3 "four" 4 "five" 5
+                         "six" 6 "seven" 7 "eight" 8 "nine" 9
+                         "1" 1 "2" 2 "3" 3 "4" 4 "5" 5
+                         "6" 6 "7" 7 "8" 8 "9" 9 "0" 0}
+        spellings (keys spelling->value)]
+    (parse-long (str (get spelling->value (first-match s spellings))
+                     (get spelling->value (last-match s spellings))))))
 
 (defn part-one
   [s]
