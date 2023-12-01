@@ -1,5 +1,7 @@
-{:aliases {:dev {:extra-deps {com.rpl/specter {:mvn/version "1.1.4"},
-                              metosin/malli {:mvn/version "0.9.2"},
-                              org.clojure/clojure {:mvn/version "1.11.1"}},
-                 :extra-paths ["src " "resources"]},
+{:aliases {:dev {:extra-deps {com.rpl/specter {:mvn/version "1.1.4"}
+                              metosin/malli {:mvn/version "0.9.2"}
+                              org.clojure/clojure {:mvn/version "1.11.1"}}
+                 :extra-paths ["src " "resources"]}
+           :kibit {:main-opts ["-m" "kibit-runner.cmdline"]
+                   :extra-deps {tvaughan/kibit-runner {:mvn/version "1.0.1"}}}
            :repl8G {:jvm-opts ["-Xms4G" "-Xmx8G"]}}}

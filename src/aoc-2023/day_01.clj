@@ -9,41 +9,14 @@
   (let [digits (filter (fn [c] (Character/isDigit c)) s)]
     (parse-long (str (first digits) (last digits)))))
 
-(defn first-digit
+(defn first-spelled-digit
   [s digits]
-  (reduce (fn [[lowest item] digit]
-            (let [idx (str/index-of s digit)]
-              (cond (nil? idx)
-                    [lowest item]
+  (re-find (re-pattern (str/join "|" digits)) s))
 
-                    (zero? idx)
-                    (reduced [idx digit])
-
-                    (or (nil? lowest) (< idx lowest))
-                    [idx digit]
-
-                    :else
-                    [lowest item])))
-          [nil nil]
-          digits))
-
-(defn last-digit
+(defn last-spelled-digit
   [s digits]
-  (reduce (fn [[highest item] digit]
-            (let [idx (str/last-index-of s digit)]
-              (cond (nil? idx)
-                    [highest item]
-
-                    (= idx (- (count s) (count digit)))
-                    (reduced [idx digit])
-
-                    (or (nil? highest) (> idx highest))
-                    [idx digit]
-
-                    :else
-                    [highest item])))
-          [nil nil]
-          digits))
+  (str/reverse (re-find (re-pattern (str/join "|" (map str/reverse digits)))
+                        (str/reverse s))))
 
 ;!zprint {:map {:nl-separator? false :flow true}}
 (defn spelled-calibration-value
@@ -52,24 +25,33 @@
                 "six" 6 "seven" 7 "eight" 8 "nine" 9
                 "1" 1 "2" 2 "3" 3 "4" 4 "5" 5
                 "6" 6 "7" 7 "8" 8 "9" 9 "0" 0}]
-    (parse-long (str (get digits (second (first-digit s (keys digits))))
-                     (get digits (second (last-digit s (keys digits))))))))
+    (parse-long (str (get digits (first-spelled-digit s (keys digits)))
+                     (get digits (last-spelled-digit s (keys digits)))))))
 
-(defn answer
-  [s calibration-fn]
-  (->> (str/split s #"\n")
-       (map calibration-fn)
+(defn part-one
+  [s]
+  (->> (str/split-lines s)
+       (map calibration-value)
+       (apply +)))
+
+(defn part-two
+  [s]
+  (->> (str/split-lines s)
+       (map spelled-calibration-value)
        (apply +)))
 
 (deftest day-01
-  (testing "test data"
-    (let [data [(slurp (io/resource "aoc-2023/01/test-1.dat"))
-                (slurp (io/resource "aoc-2023/01/test-2.dat"))]]
-      (is (= {:part-1 142 :part-2 281}
-             {:part-1 (answer (first data) calibration-value)
-              :part-2 (answer (second data) spelled-calibration-value)}))))
-  (testing "input data"
-    (let [data (slurp (io/resource "aoc-2023/01/input.dat"))]
-      (is (= {:part-1 54605 :part-2 55429}
-             {:part-1 (answer data calibration-value)
-              :part-2 (answer data spelled-calibration-value)})))))
+  (testing "--- Part One ---"
+    (testing "Example Input"
+      (let [data (slurp (io/resource "aoc-2023/01/example-1.dat"))]
+        (is (= 142 (part-one data)))))
+    (testing "Puzzle Input"
+      (let [data (slurp (io/resource "aoc-2023/01/input.dat"))]
+        (is (= 54605 (part-one data))))))
+  (testing "--- Part Two ---"
+    (testing "Example Input"
+      (let [data (slurp (io/resource "aoc-2023/01/example-2.dat"))]
+        (is (= 281 (part-two data)))))
+    (testing "Puzzle Input"
+      (let [data (slurp (io/resource "aoc-2023/01/input.dat"))]
+        (is (= 55429 (part-two data)))))))
