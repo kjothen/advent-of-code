@@ -26,15 +26,15 @@
 
 (defn powers [turns] (apply * (vals (apply merge-with max turns))))
 
-(defn games [s] (map id+turns (str/split-lines s)))
+(defn game-strs [s] (map id+turns (str/split-lines s)))
 
 (defn part-one
   [s]
   (let [limits {"red" 12 "green" 13 "blue" 14}
         possible-ids-pred (fn [[id turns]] (when (possibles? turns limits) id))]
-    (apply + (keep possible-ids-pred (games s)))))
+    (apply + (keep possible-ids-pred (game-strs s)))))
 
-(defn part-two [s] (apply + (map powers (map second (games s)))))
+(defn part-two [s] (apply + (map powers (map second (game-strs s)))))
 
 (deftest day-02
   (testing "--- Part One ---"
