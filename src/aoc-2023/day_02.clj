@@ -14,8 +14,7 @@
 
 (defn id+turns
   [game-str]
-  (let [regex #"^Game ([0-9]+)\: (.*)$"
-        id+turns (rest (first (re-seq regex game-str)))
+  (let [id+turns (rest (first (re-seq #"^Game ([0-9]+)\: (.*)$" game-str)))
         id (parse-long (first id+turns))
         turns (mapv colour->freqs (str/split (second id+turns) #"; "))]
     [id turns]))
