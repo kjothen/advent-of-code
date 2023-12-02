@@ -14,30 +14,27 @@
 
 (defn id+turns
   [game-str]
-  (let [id+turns (rest (first (re-seq #"^Game ([0-9]+)\: (.*)$" game-str)))
+  (let [id+turns (rest (re-find #"^Game ([0-9]+)\: (.*)$" game-str))
         id (parse-long (first id+turns))
         turns (mapv colour->freqs (str/split (second id+turns) #"; "))]
     [id turns]))
 
 (defn possibles?
   [turns limits]
-  (every? (fn [turn]
-            (every? (fn [[colour freq]] (<= freq (get limits colour))) turn))
-          turns))
+  (let [possible-turn-pred (fn [[colour freq]] (<= freq (get limits colour)))]
+    (every? (fn [turn] (every? possible-turn-pred turn)) turns)))
 
 (defn powers [turns] (apply * (vals (apply merge-with max turns))))
 
+(defn games [s] (map id+turns (str/split-lines s)))
+
 (defn part-one
   [s]
-  (let [games (map id+turns (str/split-lines s))
-        limits {"red" 12 "green" 13 "blue" 14}]
-    (apply +
-           (keep (fn [[id turns]] (when (possibles? turns limits) id)) games))))
+  (let [limits {"red" 12 "green" 13 "blue" 14}
+        possible-ids-pred (fn [[id turns]] (when (possibles? turns limits) id))]
+    (apply + (keep possible-ids-pred (games s)))))
 
-(defn part-two
-  [s]
-  (let [games (map id+turns (str/split-lines s))]
-    (apply + (map powers (map second games)))))
+(defn part-two [s] (apply + (map powers (map second (games s)))))
 
 (deftest day-02
   (testing "--- Part One ---"
