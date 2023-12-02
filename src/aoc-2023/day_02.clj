@@ -20,36 +20,25 @@
         turns (mapv colour->freqs (str/split (second id+turns) #"; "))]
     [id turns]))
 
-(defn turns-possible?
+(defn possibles?
   [turns limits]
-  (reduce (fn [_ turn]
-            (if (false? (reduce-kv (fn [_ colour freq]
-                                     (if (> freq (get limits colour))
-                                       (reduced false)
-                                       true))
-                                   true
-                                   turn))
-              (reduced false)
-              true))
-          true
+  (every? (fn [turn]
+            (every? (fn [[colour freq]] (<= freq (get limits colour))) turn))
           turns))
 
-(defn turns-power [turns] (apply * (vals (apply merge-with max turns))))
+(defn powers [turns] (apply * (vals (apply merge-with max turns))))
 
 (defn part-one
   [s]
   (let [games (map id+turns (str/split-lines s))
         limits {"red" 12 "green" 13 "blue" 14}]
-    (reduce (fn [result [id turns]]
-              (prn id)
-              (if (turns-possible? turns limits) (+ id result) result))
-            0
-            games)))
+    (apply +
+           (keep (fn [[id turns]] (when (possibles? turns limits) id)) games))))
 
 (defn part-two
   [s]
   (let [games (map id+turns (str/split-lines s))]
-    (apply + (map turns-power (map second games)))))
+    (apply + (map powers (map second games)))))
 
 (deftest day-02
   (testing "--- Part One ---"
