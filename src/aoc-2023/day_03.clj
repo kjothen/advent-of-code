@@ -42,7 +42,7 @@
         bounds))
 
 (defn points
-  [rects xmax ymax]
+  [xmax ymax rects]
   (map (fn [rect]
          (->> (keep
                (fn [[[x1 y1] [x2 y2]]]
@@ -102,10 +102,11 @@
         ymax (dec (count schematic))
         xmax (dec (count (first schematic)))
         ss (spans schematic)
-        bs (bounds ss)
-        rs (rects bs)
-        ps (points rs xmax ymax)
-        as (adjacents schematic ps)
+        as (->> ss
+                bounds
+                rects
+                (points xmax ymax)
+                (adjacents schematic))
         ns (numbers schematic ss)]
     (apply + (map (fn [a] (nth ns a)) as))))
 
@@ -115,17 +116,18 @@
         ymax (dec (count schematic))
         xmax (dec (count (first schematic)))
         ss (spans schematic)
-        bs (bounds ss)
-        rs (rects bs)
-        ps (points rs xmax ymax)
         gs (gears schematic)
-        gss (gear-spans gs ps)
-        two-gss (two-gear-spans gss)
+        gss (->> ss
+                 bounds
+                 rects
+                 (points xmax ymax)
+                 (gear-spans gs)
+                 two-gear-spans)
         ns (numbers schematic ss)]
     (apply +
            (map (fn [[[_ span-1] [_ span-2]]]
                   (* (nth ns span-1) (nth ns span-2)))
-                two-gss))))
+                gss))))
 
 (deftest day-03
   (testing "Part One - Example"
